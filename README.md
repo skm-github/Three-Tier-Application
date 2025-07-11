@@ -33,7 +33,7 @@ The infrastructure is hosted on **Azure Kubernetes Service (AKS)** with CI via *
 * Azure Kubernetes Service (AKS) cluster
 * Azure Container Registry (ACR)
 * ArgoCD installed in AKS
-* GitHub repo: [https://github.com/akshayachar03/three-tier-slot-booking-app](https://github.com/akshayachar03/three-tier-slot-booking-app)
+* GitHub repo: [https://github.com/skm-github/Three-Tier-Application](https://github.com/akshayachar03/three-tier-slot-booking-app)
 
 ---
 
