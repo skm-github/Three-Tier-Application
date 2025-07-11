@@ -163,4 +163,4 @@ You now have:
 
 ## 📎 Repo Link
 
-[https://github.com/akshayachar03/three-tier-slot-booking-app](https://github.com/skm-github/Three-Tier-Application)
+[https://github.com/skm-github/Three-Tier-Application](https://github.com/skm-github/Three-Tier-Application)
