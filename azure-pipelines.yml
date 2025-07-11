@@ -1,0 +1,67 @@
+trigger:
+  paths:
+    include:
+      - project/*
+
+resources:
+- repo: self
+
+variables:
+  dockerRegistryServiceConnection: '7c00a488-362e-4498-a13a-ed0a92de7325'
+  imageRepository: 'covidbedslotbooking'
+  containerRegistry: 'covidcicd.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/project/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+pool:
+  name: 'covidagent'
+
+stages:
+# --------------------------------------
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: Build
+    displayName: Build
+    steps:
+    - script: |
+        echo "🔧 Building Docker image with BuildKit..."
+        export DOCKER_BUILDKIT=1
+        docker build -f $(dockerfilePath) -t $(containerRegistry)/$(imageRepository):$(tag) project/
+      displayName: 'Build Docker Image with BuildKit'
+
+# --------------------------------------
+- stage: Push
+  displayName: Push stage
+  dependsOn: Build
+  jobs:
+  - job: Push
+    displayName: Push
+    steps:
+    - task: Docker@2
+      displayName: Push image to Azure Container Registry
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(imageRepository)'
+        command: 'push'
+        tags: '$(tag)'
+
+# --------------------------------------
+- stage: Update
+  displayName: Update Kubernetes manifests
+  dependsOn: Push
+  jobs:
+  - job: Update
+    displayName: Update manifest
+    steps:
+    - script: dos2unix scripts/updatek8sManifests.sh
+      displayName: 'Convert script to Unix format'
+
+    - script: chmod +x scripts/updatek8sManifests.sh
+      displayName: Make script executable
+
+    - task: ShellScript@2
+      displayName: Update K8s Image in Manifest
+      inputs:
+        scriptPath: 'scripts/updatek8sManifests.sh'
+        args: 'backend $(imageRepository) $(tag)'

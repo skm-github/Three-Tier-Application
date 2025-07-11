@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-backend
+  template:
+    metadata:
+      labels:
+        app: flask-backend
+    spec:
+      containers:
+      - name: flask-backend
+        image: covidcicd.azurecr.io/covidbedslotbooking:68
+        env:
+        - name: DB_HOST
+          value: mysql
+        - name: DB_USER
+          value: root
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: password
+        ports:
+        - containerPort: 5000
+      imagePullSecrets:
+      - name: covid-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-backend
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 5000
+  selector:
+    app: flask-backend
